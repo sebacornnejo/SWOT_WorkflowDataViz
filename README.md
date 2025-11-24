@@ -16,7 +16,7 @@ The visualization adopts a **Minimalist / Cyber-Corporate Memphis** aesthetic. I
 
 *   **Real-Time Physics**: Procedural ocean surface and KaRIn field generation using multi-scale sine wave synthesis.
 *   **Scientific Accuracy**: Accurate representation of the Nadir (1D) vs. KaRIn (2D) measurement geometry and the interferometric beam crossing.
-*   **Workflow Simulation**: Visualizes the complete pipeline: Interaction -> Atmosphere -> Geophysics -> Processing (L0/L1/L2).
+*   **Workflow Simulation**: Visualizes the complete pipeline: Interaction -> Processing (L0/L1/L2) -> Atmosphere -> Geophysics.
 *   **Multi-Language Support**: Fully localized in **English**, **Spanish** (Default), **French**, and **Chinese**.
 
 ## Usage
@@ -24,7 +24,7 @@ The visualization adopts a **Minimalist / Cyber-Corporate Memphis** aesthetic. I
 This is a standalone web visualization. No installation is required.
 
 1.  **Download** the repository.
-2.  **Open** `swot_spectacular.html` in any modern web browser (Chrome, Firefox, Edge).
+2.  **Open** `workflow_dataSWOTL3.html` in any modern web browser (Chrome, Firefox, Edge).
 3.  **Interact**: Use the buttons at the bottom left to switch languages.
 
 ## Technologies
@@ -32,6 +32,11 @@ This is a standalone web visualization. No installation is required.
 *   **Three.js**: For high-performance 3D rendering.
 *   **HTML5/CSS3**: For the user interface and responsive layout.
 *   **Vanilla JavaScript**: For logic and animation loops.
+
+## History
+
+*   `workflow_dataSWOTL3.html`: The current, production-ready visualization.
+*   `swot_visualization.html`: The **initial mockup** (Version 0) from which this project evolved. Kept for historical reference.
 
 ---
 
