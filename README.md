@@ -1,6 +1,6 @@
 # SWOT L3 Altimetry Workflow Visualization
 
-![SWOT Visualization](iteration_39_viz_1763943400624.png)
+![SWOT Visualization](screenshot.png)
 
 ## Overview
 
