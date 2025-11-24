@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>SWOT Debug</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap');
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: #1a1f25;
+            color: #fff;
+        }
+    </style>
+    <script type="importmap">
+        { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+    </script>
+</head>
+
+<body>
+    <div id="debug-log"
+        style="position:absolute; top:0; left:0; color:red; z-index:100; background:rgba(0,0,0,0.8); padding:10px;">
+        Debug Log<br></div>
+    <script type="module">
+        import * as THREE from 'three';
+
+        window.onerror = function (msg, url, line) {
+            const d = document.getElementById('debug-log');
+            d.innerHTML += `Global Error: ${msg} at line ${line}<br>`;
+        };
+
+        try {
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 50;
+
+            const renderer = new THREE.WebGLRenderer();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            const geometry = new THREE.BoxGeometry();
+            const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+            const cube = new THREE.Mesh(geometry, material);
+            scene.add(cube);
+
+            function animate() {
+                requestAnimationFrame(animate);
+                cube.rotation.x += 0.01;
+                cube.rotation.y += 0.01;
+                renderer.render(scene, camera);
+            }
+            animate();
+
+            document.getElementById('debug-log').innerHTML += "Basic Scene Loaded.<br>";
+
+        } catch (e) {
+            document.getElementById('debug-log').innerHTML += `Setup Error: ${e.message}<br>`;
+        }
+    </script>
+</body>
+
+</html>

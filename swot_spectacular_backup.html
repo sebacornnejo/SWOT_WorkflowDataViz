@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>SWOT L3 Workflow - Spectacular Dark 2025</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap');
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: radial-gradient(circle at 50% 50%, #1a1f25 0%, #101418 100%);
+            font-family: 'Outfit', sans-serif;
+            color: #ffffff;
+        }
+
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* Title - Even closer to animation */
+        #title {
+            position: absolute;
+            top: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 18px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.85);
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+            pointer-events: none;
+            letter-spacing: 0.5px;
+        }
+
+        /* Language Switcher */
+        #lang-switch {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            gap: 8px;
+            pointer-events: auto;
+        }
+
+        .lang-btn {
+            padding: 6px 12px;
+            background: rgba(76, 201, 240, 0.2);
+            border: 1px solid rgba(76, 201, 240, 0.5);
+            color: #4CC9F0;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .lang-btn:hover {
+            background: rgba(76, 201, 240, 0.4);
+        }
+
+        .lang-btn.active {
+            background: #4CC9F0;
+            color: #101418;
+        }
+
+        /* Minimalist Labels */
+        .label-minimal {
+            position: absolute;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+            font-weight: 500;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            pointer-events: auto;
+            transition: opacity 0.5s;
+            opacity: 0;
+        }
+
+        .label-minimal.visible {
+            opacity: 1;
+        }
+
+        .label-minimal h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #4CC9F0;
+        }
+
+        const rPos=rollFieldGeo.attributes.position;
+        const rCol=rollFieldGeo.attributes.color;
+        const rollTilt=Math.sin(time) * 0.2;
+        rollField.rotation.x=-Math.PI / 2+rollTilt;
+
+        for (let i=0; i < rPos.count; i++) {
+            const x=rPos.getX(i);
+            const y=rPos.getY(i);
+            const error=x * rollTilt * 2.0;
+            const val=getSLA_Field(x, y, time)+error;
+            rPos.setZ(i, val);
+            _col.setHSL(0.6 - (error * 0.5), 1.0, 0.5);
+            rCol.setXYZ(i, _col.r, _col.g, _col.b);
+        }
+
+        rollFieldGeo.attributes.position.needsUpdate=true;
+        rollFieldGeo.attributes.color.needsUpdate=true;
+
+        // KaRIn Fields
+        const fPosL=swathLGeo.attributes.position;
+        const fColL=swathLGeo.attributes.color;
+
+        for (let i=0; i < fPosL.count; i++) {
+            const x=fPosL.getX(i);
+            const y=fPosL.getY(i);
+            const worldX=x - 5;
+            const val=getSLA_Field(worldX, y, time);
+            fPosL.setZ(i, val * 2);
+            _col.setHSL(0.6 + val * 0.2, 1.0, 0.5);
+            fColL.setXYZ(i, _col.r, _col.g, _col.b);
+        }
+
+        swathLGeo.attributes.position.needsUpdate=true;
+        swathLGeo.attributes.color.needsUpdate=true;
+
+        const fPosR=swathRGeo.attributes.position;
+        const fColR=swathRGeo.attributes.color;
+
+        for (let i=0; i < fPosR.count; i++) {
+            const x=fPosR.getX(i);
+            const y=fPosR.getY(i);
+            const worldX=x+5;
+            const val=getSLA_Field(worldX, y, time);
+            fPosR.setZ(i, val * 2);
+            _col.setHSL(0.6 + val * 0.2, 1.0, 0.5);
+            fColR.setXYZ(i, _col.r, _col.g, _col.b);
+        }
+
+        swathRGeo.attributes.position.needsUpdate=true;
+        swathRGeo.attributes.color.needsUpdate=true;
+
+        const fPosN=swathNGeo.attributes.position;
+        const fColN=swathNGeo.attributes.color;
+
+        for (let i=0; i < fPosN.count; i++) {
+            const x=fPosN.getX(i);
+            const y=fPosN.getY(i);
+            const worldX=x;
+            const val=getSLA_Field(worldX, y, time);
+            fPosN.setZ(i, val * 2);
+            _col.setHSL(0.6 + val * 0.2, 1.0, 0.5);
+            fColN.setXYZ(i, _col.r, _col.g, _col.b);
+        }
+
+        swathNGeo.attributes.position.needsUpdate=true;
+        swathNGeo.attributes.color.needsUpdate=true;
+
+        // Packets
+        if (Math.random() > 0.9) {
+            const pipeIdx=Math.floor(Math.random() * pipes.length);
+            packets.push(spawnPacket(pipes[pipeIdx], 0x4CC9F0));
+        }
+
+        for (let i=packets.length - 1; i >=0; i--) {
+            let p=packets[i];
+            p.t+=p.speed * 0.01;
+
+            if (p.t >=1) {
+                scene.remove(p.mesh);
+                packets.splice(i, 1);
+            }
+
+            else {
+                const pt=p.path.getPoint(p.t);
+                p.mesh.position.copy(pt);
+            }
+        }
+
+        updateUI();
+        renderer.render(scene, camera);
+        }
+
+        animate();
+
+        window.addEventListener('resize', ()=> {
+                const aspect=window.innerWidth / window.innerHeight;
+                camera.left=-d * aspect; camera.right=d * aspect;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                updateUI();
+            });
+
+        </script></body></html>

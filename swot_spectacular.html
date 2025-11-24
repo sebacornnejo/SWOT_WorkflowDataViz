@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>SWOT L3 Workflow - Spectacular Dark 2025</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap');
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: radial-gradient(circle at 50% 50%, #2c3e50 0%, #101418 100%);
+            font-family: 'Outfit', sans-serif;
+            color: #ffffff;
+        }
+
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        #title {
+            position: absolute;
+            top: 130px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 18px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.85);
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+            pointer-events: none;
+            letter-spacing: 0.5px;
+        }
+
+        #lang-switch {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            gap: 8px;
+            pointer-events: auto;
+        }
+
+        .lang-btn {
+            padding: 6px 12px;
+            background: rgba(76, 201, 240, 0.2);
+            border: 1px solid rgba(76, 201, 240, 0.5);
+            color: #4CC9F0;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .lang-btn:hover {
+            background: rgba(76, 201, 240, 0.4);
+        }
+
+        .lang-btn.active {
+            background: #4CC9F0;
+            color: #101418;
+        }
+
+        .label-minimal {
+            position: absolute;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+            font-weight: 500;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            pointer-events: auto;
+            transition: opacity 0.5s;
+            opacity: 0;
+        }
+
+        .label-minimal.visible {
+            opacity: 1;
+        }
+
+        .label-minimal h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #4CC9F0;
+        }
+
+        .label-minimal .sub {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 2px;
+        }
+
+        #legend {
+            position: absolute;
+            top: 22%;
+            left: 30%;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px;
+            border-radius: 8px;
+            pointer-events: auto;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+            color: #ccc;
+            margin-bottom: 4px;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            margin-right: 8px;
+            border-radius: 2px;
+        }
+
+        svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .connector-line {
+            stroke: rgba(76, 201, 240, 0.3);
+            stroke-width: 1;
+            fill: none;
+        }
+
+        .connector-dot {
+            fill: #4CC9F0;
+            r: 3;
+        }
+    </style>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+            }
+        }
+    </script>
+</head>
+
+<body>
+
+    <svg id="svg-layer"></svg>
+
+    <div id="ui-layer">
+        <div id="title" data-i18n="main-title">Flujo de Trabajo SWOT L3 (Lanzado Dic 2022)</div>
+
+        <div id="lang-switch">
+            <button class="lang-btn active" data-lang="es">ES</button>
+            <button class="lang-btn" data-lang="en">EN</button>
+            <button class="lang-btn" data-lang="fr">FR</button>
+            <button class="lang-btn" data-lang="zh">ZH</button>
+        </div>
+
+        <div id="lbl-ocean" class="label-minimal">
+            <h3 data-i18n="ocean-title">1. Interacción</h3>
+            <div class="sub" data-i18n="ocean-sub">Rango Altimétrico y Rugosidad</div>
+        </div>
+        <div id="lbl-ground" class="label-minimal">
+            <h3 data-i18n="ground-title">Recepción</h3>
+            <div class="sub" data-i18n="ground-sub">Estación Terrestre</div>
+        </div>
+        <div id="lbl-comp" class="label-minimal">
+            <h3 data-i18n="comp-title">Procesamiento</h3>
+            <div class="sub" data-i18n="comp-sub">Niveles L0/L1/L2</div>
+        </div>
+        <div id="lbl-atmo" class="label-minimal">
+            <h3 style="color: #FF9F1C;" data-i18n="atmo-title">2. Atmósfera</h3>
+            <div class="sub" data-i18n="atmo-sub">Tropósfera Seca, Húmeda e Ionósfera</div>
+        </div>
+        <div id="lbl-geo" class="label-minimal">
+            <h3 style="color: #FF9F1C;" data-i18n="geo-title">3. Geofísica</h3>
+            <div class="sub" data-i18n="geo-sub">Mareas & DAC (Viento)</div>
+        </div>
+        <div id="lbl-nadir" class="label-minimal">
+            <h3 data-i18n="nadir-title">NADIR (1D)</h3>
+            <div class="sub" data-i18n="nadir-sub">Calibración (Otros Satélites)</div>
+        </div>
+        <div id="lbl-roll" class="label-minimal">
+            <h3 data-i18n="roll-title">AJUSTE</h3>
+            <div class="sub" data-i18n="roll-sub">Ruido y Roll</div>
+        </div>
+        <div id="lbl-karin" class="label-minimal">
+            <h3 data-i18n="karin-title">Campo 2D (SWOT L3)</h3>
+            <div class="sub" data-i18n="karin-sub">Producto Final</div>
+        </div>
+
+        <div id="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: #FF9F1C;"></div>
+                <span data-i18n="legend-corrections">Correcciones</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #4CC9F0;"></div>
+                <span data-i18n="legend-data">Datos / Señal</span>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import * as THREE from 'three';
+
+        const translations = {
+            es: {
+                'main-title': 'Flujo de Trabajo SWOT L3 (Lanzado Dic 2022)',
+                'ocean-title': '1. Interacción',
+                'ocean-sub': 'Rango Altimétrico y Rugosidad',
+                'ground-title': 'Recepción',
+                'ground-sub': 'Estación Terrestre',
+                'comp-title': 'Procesamiento',
+                'comp-sub': 'Niveles L0/L1/L2',
+                'atmo-title': '2. Atmósfera',
+                'atmo-sub': 'Tropósfera Seca, Húmeda e Ionósfera',
+                'geo-title': '3. Geofísica',
+                'geo-sub': 'Mareas & DAC (Viento)',
+                'nadir-title': 'NADIR (1D)',
+                'nadir-sub': 'Calibración (Otros Satélites)',
+                'roll-title': 'AJUSTE',
+                'roll-sub': 'Ruido y Roll',
+                'karin-title': 'Campo 2D (SWOT L3)',
+                'karin-sub': 'Producto Final',
+                'legend-corrections': 'Correcciones',
+                'legend-data': 'Datos / Señal'
+            },
+            en: {
+                'main-title': 'SWOT L3 Workflow (Launched Dec 2022)',
+                'ocean-title': '1. Interaction',
+                'ocean-sub': 'Altimetric Range & Roughness',
+                'ground-title': 'Reception',
+                'ground-sub': 'Ground Station',
+                'comp-title': 'Processing',
+                'comp-sub': 'Levels L0/L1/L2',
+                'atmo-title': '2. Atmosphere',
+                'atmo-sub': 'Dry, Wet Troposphere & Ionosphere',
+                'geo-title': '3. Geophysics',
+                'geo-sub': 'Tides & DAC (Wind)',
+                'nadir-title': 'NADIR (1D)',
+                'nadir-sub': 'Calibration (Other Satellites)',
+                'roll-title': 'ADJUSTMENT',
+                'roll-sub': 'Noise & Roll',
+                'karin-title': '2D Field (SWOT L3)',
+                'karin-sub': 'Final Product',
+                'legend-corrections': 'Corrections',
+                'legend-data': 'Data / Signal'
+            },
+            fr: {
+                'main-title': 'Flux de Travail SWOT L3 (Lancé Déc 2022)',
+                'ocean-title': '1. Interaction',
+                'ocean-sub': 'Portée Altimétrique et Rugosité',
+                'ground-title': 'Réception',
+                'ground-sub': 'Station Terrestre',
+                'comp-title': 'Traitement',
+                'comp-sub': 'Niveaux L0/L1/L2',
+                'atmo-title': '2. Atmosphère',
+                'atmo-sub': 'Troposphère Sèche, Humide et Ionosphère',
+                'geo-title': '3. Géophysique',
+                'geo-sub': 'Marées & DAC (Vent)',
+                'nadir-title': 'NADIR (1D)',
+                'nadir-sub': 'Calibration (Autres Satellites)',
+                'roll-title': 'AJUSTEMENT',
+                'roll-sub': 'Bruit et Roulis',
+                'karin-title': 'Champ 2D (SWOT L3)',
+                'karin-sub': 'Produit Final',
+                'legend-corrections': 'Corrections',
+                'legend-data': 'Données / Signal'
+            },
+            zh: {
+                'main-title': 'SWOT L3 工作流程 (2022年12月发布)',
+                'ocean-title': '1. 相互作用',
+                'ocean-sub': '测高范围和粗糙度',
+                'ground-title': '接收',
+                'ground-sub': '地面站',
+                'comp-title': '处理',
+                'comp-sub': 'L0/L1/L2 级别',
+                'atmo-title': '2. 大气层',
+                'atmo-sub': '干/湿对流层和电离层',
+                'geo-title': '3. 地球物理学',
+                'geo-sub': '潮汐和 DAC (风)',
+                'nadir-title': 'NADIR (1D)',
+                'nadir-sub': '校准 (其他卫星)',
+                'roll-title': '调整',
+                'roll-sub': '噪声和侧滚',
+                'karin-title': '2D 场 (SWOT L3)',
+                'karin-sub': '最终产品',
+                'legend-corrections': '修正',
+                'legend-data': '数据 / 信号'
+            }
+        };
+
+        let currentLang = 'es';
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+            });
+        }
+
+        document.querySelectorAll('.lang-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                setLanguage(btn.getAttribute('data-lang'));
+            });
+        });
+
+        // --- SETUP ---
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x101418, 0.002);
+
+        const d = 70;
+        const aspect = window.innerWidth / window.innerHeight;
+        const camera = new THREE.OrthographicCamera(-d * aspect, d * aspect, d, -d, 1, 1000);
+        camera.position.set(120, 100, 100);
+        camera.lookAt(20, 0, 0);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.5;
+        document.body.appendChild(renderer.domElement);
+
+        // --- LIGHTING ---
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
+        scene.add(ambientLight);
+
+        const mainLight = new THREE.DirectionalLight(0x4CC9F0, 2.0);
+        mainLight.position.set(50, 80, 30);
+        mainLight.castShadow = true;
+        mainLight.shadow.mapSize.width = 2048;
+        mainLight.shadow.mapSize.height = 2048;
+        scene.add(mainLight);
+
+        const rimLight = new THREE.DirectionalLight(0xF72585, 1.5);
+        rimLight.position.set(-50, 20, -50);
+        scene.add(rimLight);
+
+        // --- TEXTURES ---
+        function createCloudTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 64; canvas.height = 64;
+            const ctx = canvas.getContext('2d');
+            const grad = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+            grad.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
+            grad.addColorStop(0.4, 'rgba(255, 255, 255, 0.2)');
+            grad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, 64, 64);
+            return new THREE.CanvasTexture(canvas);
+        }
+
+        function createMoonTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 256; canvas.height = 256;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#dcdde1';
+            ctx.fillRect(0, 0, 256, 256);
+            ctx.fillStyle = '#7f8c8d';
+            ctx.beginPath(); ctx.arc(160, 100, 30, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(190, 80, 25, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(80, 120, 45, 0, Math.PI * 2); ctx.fill();
+            ctx.beginPath(); ctx.arc(100, 180, 20, 0, Math.PI * 2); ctx.fill();
+            for (let i = 0; i < 30; i++) {
+                const x = Math.random() * 256;
+                const y = Math.random() * 256;
+                const r = Math.random() * 5 + 1;
+                ctx.beginPath();
+                ctx.arc(x, y, r, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(0,0,0,0.1)';
+                ctx.fill();
+            }
+            return new THREE.CanvasTexture(canvas);
+        }
+
+        function createPhaseMaskTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 128; canvas.height = 64;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = 'rgba(0,0,0,0)';
+            ctx.fillRect(0, 0, 64, 64);
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(64, 0, 64, 64);
+            const grad = ctx.createLinearGradient(60, 0, 68, 0);
+            grad.addColorStop(0, 'rgba(0,0,0,0)');
+            grad.addColorStop(1, '#000000');
+            ctx.fillStyle = grad;
+            ctx.fillRect(60, 0, 8, 64);
+            const tex = new THREE.CanvasTexture(canvas);
+            tex.wrapS = THREE.RepeatWrapping;
+            return tex;
+        }
+
+        function createGraphTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 128; canvas.height = 64;
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#000000';
+            ctx.fillRect(0, 0, 128, 64);
+            ctx.strokeStyle = '#00ff00';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, 32);
+            for (let i = 0; i < 128; i += 5) {
+                ctx.lineTo(i, 32 + Math.sin(i * 0.2) * 15);
+            }
+            ctx.stroke();
+            return new THREE.CanvasTexture(canvas);
+        }
+
+        const solidMat = (color) => new THREE.MeshStandardMaterial({ color: color, roughness: 0.3, metalness: 0.6 });
+        const correctionColor = 0xFF9F1C;
+
+        // --- 1. OCEAN (Deep) ---
+        const oceanGroup = new THREE.Group();
+        oceanGroup.position.set(-50, -15, 40);
+        oceanGroup.scale.set(1.2, 1.2, 1.2);
+        scene.add(oceanGroup);
+
+        const waterGeo = new THREE.PlaneGeometry(22, 22, 64, 64);
+        const waterMat = new THREE.MeshPhysicalMaterial({
+            color: 0x0077be, transmission: 0.6, opacity: 0.9, roughness: 0.2, metalness: 0.5, transparent: true, side: THREE.DoubleSide
+        });
+        const waterMesh = new THREE.Mesh(waterGeo, waterMat);
+        waterMesh.rotation.x = -Math.PI / 2;
+        waterMesh.receiveShadow = true;
+        oceanGroup.add(waterMesh);
+
+        const wallMat = new THREE.MeshBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.9, side: THREE.DoubleSide });
+        const wallGeo = new THREE.PlaneGeometry(22, 12, 64, 1);
+
+        function colorizeWall(geo) {
+            const count = geo.attributes.position.count;
+            const colors = new Float32Array(count * 3);
+            const colBlue = new THREE.Color(0x004488);
+            for (let i = 0; i < count; i++) {
+                colors[i * 3] = colBlue.r; colors[i * 3 + 1] = colBlue.g; colors[i * 3 + 2] = colBlue.b;
+            }
+            geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        }
+
+        const wallFront = new THREE.Mesh(wallGeo.clone(), wallMat); colorizeWall(wallFront.geometry);
+        wallFront.position.z = 11; wallFront.position.y = -6.0; oceanGroup.add(wallFront);
+
+        const wallBack = new THREE.Mesh(wallGeo.clone(), wallMat); colorizeWall(wallBack.geometry);
+        wallBack.rotation.y = Math.PI; wallBack.position.z = -11; wallBack.position.y = -6.0; oceanGroup.add(wallBack);
+
+        const wallLeft = new THREE.Mesh(wallGeo.clone(), wallMat); colorizeWall(wallLeft.geometry);
+        wallLeft.rotation.y = -Math.PI / 2; wallLeft.position.x = -11; wallLeft.position.y = -6.0; oceanGroup.add(wallLeft);
+
+        const wallRight = new THREE.Mesh(wallGeo.clone(), wallMat); colorizeWall(wallRight.geometry);
+        wallRight.rotation.y = Math.PI / 2; wallRight.position.x = 11; wallRight.position.y = -6.0; oceanGroup.add(wallRight);
+
+        const floorGeo = new THREE.PlaneGeometry(22, 22);
+        const floorMat = new THREE.MeshStandardMaterial({ color: 0x004488 });
+        const floor = new THREE.Mesh(floorGeo, floorMat);
+        floor.rotation.x = -Math.PI / 2; floor.position.y = -12; oceanGroup.add(floor);
+
+        const coverGeo = new THREE.PlaneGeometry(22, 22);
+        const coverMat = new THREE.MeshBasicMaterial({ color: 0x004488, transparent: true, opacity: 0.95, side: THREE.DoubleSide });
+        const cover = new THREE.Mesh(coverGeo, coverMat);
+        cover.rotation.x = -Math.PI / 2; cover.position.y = -11.9; oceanGroup.add(cover);
+
+        // Iteration 37: 2-Layer Sea Floor
+        // Top Layer: Sand (#AA9477)
+        const sandGeo = new THREE.BoxGeometry(22, 1, 22);
+        const sandMat = solidMat(0xAA9477);
+        const sandLayer = new THREE.Mesh(sandGeo, sandMat);
+        sandLayer.position.set(0, -12.5, 0); // Just below water
+        oceanGroup.add(sandLayer);
+
+        // Bottom Layer: Earth (#825930)
+        const earthGeo = new THREE.BoxGeometry(22, 3, 22);
+        const earthMat = solidMat(0x825930);
+        const earthLayer = new THREE.Mesh(earthGeo, earthMat);
+        earthLayer.position.set(0, -14.5, 0); // Below sand
+        oceanGroup.add(earthLayer);
+
+        // Iteration 38: Removed Clouds (Ocean)
+
+
+        // --- SATELLITE ---
+        const satGroup = new THREE.Group();
+        satGroup.position.set(-50, 35, 40);
+
+        const satBody = new THREE.Mesh(new THREE.BoxGeometry(5, 10, 5), solidMat(0xf1c40f));
+        satGroup.add(satBody);
+
+        const panelGeo = new THREE.BoxGeometry(14, 0.2, 7);
+        const panelMat = solidMat(0x2c3e50);
+        const panelL = new THREE.Mesh(panelGeo, panelMat); panelL.position.set(-9.5, 0, 0); satGroup.add(panelL);
+        const panelR = new THREE.Mesh(panelGeo, panelMat); panelR.position.set(9.5, 0, 0); satGroup.add(panelR);
+
+        const boom = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 24), solidMat(0xffffff));
+        boom.rotation.x = Math.PI / 2; satGroup.add(boom);
+
+        const antL = new THREE.Mesh(new THREE.BoxGeometry(2.5, 1.5, 2.5), solidMat(0xffffff)); antL.position.z = 12; satGroup.add(antL);
+        const antR = new THREE.Mesh(new THREE.BoxGeometry(2.5, 1.5, 2.5), solidMat(0xffffff)); antR.position.z = -12; satGroup.add(antR);
+
+        scene.add(satGroup);
+
+        const beamMat = new THREE.MeshBasicMaterial({ color: 0x4CC9F0, transparent: true, opacity: 0.15, side: THREE.DoubleSide, depthWrite: false, blending: THREE.AdditiveBlending });
+        const beamNadir = new THREE.Mesh(new THREE.ConeGeometry(1.5, 50, 32, 1, true), beamMat);
+        beamNadir.geometry.translate(0, -25, 0); beamNadir.position.copy(satGroup.position); scene.add(beamNadir);
+
+        function createCrossingBeam(isLeft) {
+            const originZ = isLeft ? 12 : -12;
+            const targetZ_Start = -11;
+            const targetZ_End = 11;
+
+            const geom = new THREE.BufferGeometry();
+            const vertices = new Float32Array([
+                0, 0, originZ, 0, 0, originZ,
+                -0.5, -50, targetZ_Start, 0.5, -50, targetZ_Start,
+                -0.5, -50, targetZ_End, 0.5, -50, targetZ_End
+            ]);
+
+            const indices = [0, 2, 3, 0, 3, 5, 0, 5, 4, 0, 4, 2];
+
+            geom.setIndex(indices);
+            geom.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+            geom.computeVertexNormals();
+
+            const mesh = new THREE.Mesh(geom, beamMat);
+            mesh.position.copy(satGroup.position);
+            return mesh;
+        }
+
+        const beamCrossL = createCrossingBeam(true); scene.add(beamCrossL);
+        const beamCrossR = createCrossingBeam(false); scene.add(beamCrossR);
+
+
+        // --- 2. GROUND STATION ---
+        const posGround = new THREE.Vector3(-30, -5, 20);
+        const groundGroup = new THREE.Group();
+        groundGroup.position.copy(posGround); groundGroup.scale.set(1.2, 1.2, 1.2); scene.add(groundGroup);
+
+        const truss = new THREE.Mesh(new THREE.CylinderGeometry(2, 3, 6, 4, 1, true), new THREE.MeshBasicMaterial({ color: 0x7f8c8d, wireframe: true }));
+        truss.position.y = 3; groundGroup.add(truss);
+
+        const dishPivot = new THREE.Group(); dishPivot.position.set(0, 6.8, 0);
+        const dishPoints = []; for (let i = 0; i <= 10; i++) dishPoints.push(new THREE.Vector2(i * 0.4, (i * 0.4) ** 2 * 0.15));
+        const dish = new THREE.Mesh(new THREE.LatheGeometry(dishPoints, 32), new THREE.MeshStandardMaterial({ color: 0x1e3799, roughness: 0.4, metalness: 0.8 }));
+        dish.material.side = THREE.DoubleSide; dish.rotation.x = -Math.PI / 2; dish.rotation.z = Math.PI; dishPivot.add(dish);
+
+        const tripodMat = solidMat(0xffffff);
+        const legGeo = new THREE.CylinderGeometry(0.05, 0.05, 3.5);
+        const leg1 = new THREE.Mesh(legGeo, tripodMat); leg1.position.set(0, 1.5, 1); leg1.rotation.x = -0.5; dish.add(leg1);
+        const leg2 = new THREE.Mesh(legGeo, tripodMat); leg2.position.set(0.86, 1.5, -0.5); leg2.rotation.x = 0.2; leg2.rotation.z = -0.5; dish.add(leg2);
+        const leg3 = new THREE.Mesh(legGeo, tripodMat); leg3.position.set(-0.86, 1.5, -0.5); leg3.rotation.x = 0.2; leg3.rotation.z = 0.5; dish.add(leg3);
+        const feedTip = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.5), tripodMat); feedTip.rotation.x = Math.PI / 2; feedTip.position.set(0, 3, 0); dish.add(feedTip);
+        groundGroup.add(dishPivot);
+
+        const containerGroup = new THREE.Group(); containerGroup.position.set(4, 1, 2); groundGroup.add(containerGroup);
+        const containerBody = new THREE.Mesh(new THREE.BoxGeometry(2.5, 2, 4), solidMat(0xffffff)); containerGroup.add(containerBody);
+        const winGeo = new THREE.PlaneGeometry(0.5, 0.8); const winMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
+        const w1 = new THREE.Mesh(winGeo, winMat); w1.position.set(1.26, 0.2, 1); w1.rotation.y = Math.PI / 2; containerGroup.add(w1);
+        const w2 = new THREE.Mesh(winGeo, winMat); w2.position.set(1.26, 0.2, -1); w2.rotation.y = Math.PI / 2; containerGroup.add(w2);
+
+        const commBeamGeo = new THREE.CylinderGeometry(0.2, 0.2, 1); commBeamGeo.translate(0, 0.5, 0); commBeamGeo.rotateX(Math.PI / 2);
+        const commBeam = new THREE.Mesh(commBeamGeo, new THREE.MeshBasicMaterial({ color: 0xF72585, transparent: true, opacity: 0.6, blending: THREE.AdditiveBlending }));
+        commBeam.position.copy(dishPivot.position).add(posGround); scene.add(commBeam);
+
+
+        // --- 3. COMPUTER NODE ---
+        const posComp = new THREE.Vector3(-10, 0, 10);
+        const compGroup = new THREE.Group(); compGroup.position.copy(posComp); compGroup.scale.set(1.2, 1.2, 1.2); scene.add(compGroup);
+
+        const rack = new THREE.Mesh(new THREE.BoxGeometry(6, 8, 6), solidMat(0x2c3e50)); rack.position.y = 4; compGroup.add(rack);
+        const serverLights = [];
+        for (let r = 0; r < 6; r++) {
+            const row = [];
+            for (let c = 0; c < 4; c++) {
+                const lightMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
+                const light = new THREE.Mesh(new THREE.PlaneGeometry(0.8, 0.2), lightMat);
+                light.position.set(-1.5 + c * 1.0, 1.5 + r * 0.8, 3.1); compGroup.add(light); row.push(lightMat);
+            }
+            serverLights.push(row);
+        }
+
+        const deskGroup = new THREE.Group(); deskGroup.position.set(5, 0, 0); compGroup.add(deskGroup);
+        const desk = new THREE.Mesh(new THREE.BoxGeometry(3, 2, 2.5), solidMat(0x8e44ad)); desk.position.y = 1; deskGroup.add(desk);
+        const pcMonitor = new THREE.Mesh(new THREE.BoxGeometry(1.8, 1.2, 0.1), solidMat(0x000000)); pcMonitor.position.set(0, 2.6, 0); deskGroup.add(pcMonitor);
+        const screen = new THREE.Mesh(new THREE.PlaneGeometry(1.7, 1.1), new THREE.MeshBasicMaterial({ map: createGraphTexture() })); screen.position.set(0, 2.6, 0.06); deskGroup.add(screen);
+        const keyboard = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.1, 0.6), solidMat(0x333333)); keyboard.position.set(0, 2.05, 0.8); deskGroup.add(keyboard);
+        const mouse = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.1, 0.3), solidMat(0x333333)); mouse.position.set(0.8, 2.05, 0.8); deskGroup.add(mouse);
+
+
+        // --- 4. ATMOSPHERE ---
+        const posAtmo = new THREE.Vector3(10, 0, 0);
+        const atmoGroup = new THREE.Group(); atmoGroup.position.copy(posAtmo); atmoGroup.scale.set(1.2, 1.2, 1.2); scene.add(atmoGroup);
+        const vaporGroup = new THREE.Group(); atmoGroup.add(vaporGroup);
+        const cloudTex = createCloudTexture();
+        for (let i = 0; i < 50; i++) {
+            const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: cloudTex, color: 0xffffff, transparent: true, opacity: 0.6, blending: THREE.NormalBlending }));
+            const r = Math.random() * 3; const theta = Math.random() * Math.PI * 2;
+            sprite.position.set(r * Math.cos(theta), 3 + Math.random() * 4, r * Math.sin(theta)); sprite.scale.set(4, 4, 1); vaporGroup.add(sprite);
+        }
+
+
+        // --- 5. GEOPHYSICS (Moon) ---
+        const posGeo = new THREE.Vector3(30, 0, -10);
+        const geoGroup = new THREE.Group(); geoGroup.position.copy(posGeo); geoGroup.scale.set(1.2, 1.2, 1.2); scene.add(geoGroup);
+        const moon = new THREE.Mesh(new THREE.SphereGeometry(2.5, 32, 32), new THREE.MeshStandardMaterial({ map: createMoonTexture(), color: 0xffffff, roughness: 1.0, metalness: 0.0 }));
+        moon.position.set(3, 7, -3);
+        moon.rotation.x = -0.32;
+        geoGroup.add(moon);
+
+        const phaseMask = new THREE.Mesh(new THREE.SphereGeometry(2.55, 32, 32), new THREE.MeshBasicMaterial({ map: createPhaseMaskTexture(), transparent: true, opacity: 0.9, side: THREE.DoubleSide }));
+        phaseMask.position.copy(moon.position);
+        phaseMask.rotation.x = -0.32;
+        geoGroup.add(phaseMask);
+
+        const tideGrid = new THREE.Mesh(new THREE.PlaneGeometry(12, 12, 20, 20), new THREE.MeshBasicMaterial({ color: correctionColor, wireframe: true, transparent: true, opacity: 0.5 }));
+        tideGrid.rotation.x = -Math.PI / 2; tideGrid.position.y = 1; geoGroup.add(tideGrid);
+        const windGrid = new THREE.Mesh(new THREE.PlaneGeometry(12, 12, 40, 40), new THREE.MeshBasicMaterial({ color: 0x4CC9F0, wireframe: true, transparent: true, opacity: 0.3 }));
+        windGrid.rotation.x = -Math.PI / 2; windGrid.position.y = 3; geoGroup.add(windGrid);
+
+
+        // --- 8. ADJUSTMENT ---
+        const posRoll = new THREE.Vector3(60, 5, 0); const rollGroup = new THREE.Group(); rollGroup.position.copy(posRoll); rollGroup.scale.set(1.2, 1.2, 1.2); scene.add(rollGroup);
+        rollGroup.add(new THREE.Mesh(new THREE.BoxGeometry(6, 0.5, 6), solidMat(0x34495e)));
+        const chipTop = new THREE.Mesh(new THREE.BoxGeometry(4, 0.5, 4), solidMat(0x2c3e50)); chipTop.position.y = 0.5; rollGroup.add(chipTop);
+        const rollFieldGeo = new THREE.PlaneGeometry(5, 5, 16, 16); const countRoll = rollFieldGeo.attributes.position.count;
+        rollFieldGeo.setAttribute('color', new THREE.BufferAttribute(new Float32Array(countRoll * 3), 3));
+        const rollField = new THREE.Mesh(rollFieldGeo, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.2, metalness: 0.5, side: THREE.DoubleSide }));
+        rollField.rotation.x = -Math.PI / 2; rollField.position.y = 2; rollGroup.add(rollField);
+
+
+        // --- 6. EXTERNAL NADIR ---
+        const posExtSat = new THREE.Vector3(60, 25, -50); const extSatGroup = new THREE.Group(); extSatGroup.position.copy(posExtSat); scene.add(extSatGroup);
+        extSatGroup.add(new THREE.Mesh(new THREE.BoxGeometry(3, 3, 5), solidMat(0xf1c40f)));
+        const extPanel = new THREE.Mesh(new THREE.BoxGeometry(8, 0.1, 2), solidMat(0x2c3e50)); extPanel.position.y = 2; extSatGroup.add(extPanel);
+        const extWaterGeo = new THREE.PlaneGeometry(10, 10, 16, 16);
+        const extWater = new THREE.Mesh(extWaterGeo, new THREE.MeshPhysicalMaterial({ color: 0x0077be, transparent: true, opacity: 0.8, side: THREE.DoubleSide }));
+        extWater.rotation.x = -Math.PI / 2; extWater.position.set(60, -5, -50); scene.add(extWater);
+        const extBeam = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 30), new THREE.MeshBasicMaterial({ color: 0xf1c40f, transparent: true, opacity: 0.3 }));
+        extBeam.position.set(60, 10, -50); scene.add(extBeam);
+
+        // Iteration 38: Removed Clouds (External Sat)
+
+
+        // --- 7. NADIR NODE ---
+        const posNadirNode = new THREE.Vector3(60, 15, -30); const nadirGroup = new THREE.Group(); nadirGroup.position.copy(posNadirNode); nadirGroup.scale.set(1.2, 1.2, 1.2); scene.add(nadirGroup);
+
+        // Iteration 39: 1.5x Length (Width 90, Segments 300), Thicker (linewidth 5)
+        const lineGeo = new THREE.BufferGeometry(); const segments = 300;
+        lineGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(segments * 3), 3));
+        lineGeo.setAttribute('color', new THREE.BufferAttribute(new Float32Array(segments * 3), 3));
+        const lineMesh = new THREE.Line(lineGeo, new THREE.LineBasicMaterial({ vertexColors: true, linewidth: 5 }));
+        lineMesh.position.set(0, 0, 0);
+        lineMesh.scale.set(0.25, 3.0, 1); nadirGroup.add(lineMesh);
+
+        nadirGroup.add(new THREE.Mesh(new THREE.BoxGeometry(22, 0.1, 0.1), solidMat(0xffffff)));
+        const extCommBeamGeo = new THREE.CylinderGeometry(0.1, 0.1, 1); extCommBeamGeo.translate(0, 0.5, 0); extCommBeamGeo.rotateX(Math.PI / 2);
+        const extCommBeam = new THREE.Mesh(extCommBeamGeo, new THREE.MeshBasicMaterial({ color: 0x32ff7e, transparent: true, opacity: 0.6, blending: THREE.AdditiveBlending }));
+        extCommBeam.position.copy(posExtSat); extCommBeam.lookAt(posNadirNode); extCommBeam.scale.z = posExtSat.distanceTo(posNadirNode); scene.add(extCommBeam);
+
+
+        // --- 9. KaRIn ---
+        const posKaRIn = new THREE.Vector3(90, 5, 0); const karinGroup = new THREE.Group(); karinGroup.position.copy(posKaRIn); karinGroup.scale.set(1.2, 1.2, 1.2); scene.add(karinGroup);
+        const swathLGeo = new THREE.PlaneGeometry(6, 16, 16, 32); const countL = swathLGeo.attributes.position.count; swathLGeo.setAttribute('color', new THREE.BufferAttribute(new Float32Array(countL * 3), 3));
+        const swathL = new THREE.Mesh(swathLGeo, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.2, metalness: 0.5, side: THREE.DoubleSide })); swathL.rotation.x = -Math.PI / 2; swathL.position.x = -5.0; karinGroup.add(swathL);
+        const swathRGeo = new THREE.PlaneGeometry(6, 16, 16, 32); const countR = swathRGeo.attributes.position.count; swathRGeo.setAttribute('color', new THREE.BufferAttribute(new Float32Array(countR * 3), 3));
+        const swathR = new THREE.Mesh(swathRGeo, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.2, metalness: 0.5, side: THREE.DoubleSide })); swathR.rotation.x = -Math.PI / 2; swathR.position.x = 5.0; karinGroup.add(swathR);
+        const swathNGeo = new THREE.PlaneGeometry(0.5, 16, 1, 32); const countN = swathNGeo.attributes.position.count; swathNGeo.setAttribute('color', new THREE.BufferAttribute(new Float32Array(countN * 3), 3));
+        const swathN = new THREE.Mesh(swathNGeo, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.2, metalness: 0.5, side: THREE.DoubleSide })); swathN.rotation.x = -Math.PI / 2; swathN.position.x = 0; karinGroup.add(swathN);
+
+
+        function createPipe(p1, p2) {
+            const path = new THREE.LineCurve3(p1, p2);
+            const mesh = new THREE.Mesh(new THREE.TubeGeometry(path, 64, 0.3, 8, false), solidMat(0x7f8c8d));
+            scene.add(mesh); return { path, mesh };
+        }
+        const pipes = [createPipe(posGround, posComp), createPipe(posComp, posAtmo), createPipe(posAtmo, posGeo), createPipe(posGeo, posRoll), createPipe(posNadirNode, posRoll), createPipe(posRoll, posKaRIn)];
+
+        const clock = new THREE.Clock(); const packets = [];
+        function spawnPacket(pathObj, color) {
+            const mesh = new THREE.Mesh(new THREE.SphereGeometry(0.6), new THREE.MeshBasicMaterial({ color: color }));
+            scene.add(mesh); return { mesh, path: pathObj.path, t: 0, speed: 1.0 };
+        }
+
+        function getSLA_Field(x, y) {
+            let val = 0;
+            val += Math.sin(x * 0.05 + y * 0.05) * 0.8;
+            val += Math.sin(x * 0.1 + y * 0.1) * Math.cos(y * 0.1 - x * 0.05) * 0.6;
+            val += Math.sin(x * 0.2 + y * 0.2) * 0.15;
+            val += Math.sin(Math.sqrt(x * x + y * y) * 0.8) * 0.05;
+            val = val * val * val;
+            return val * 0.8;
+        }
+        function getSLA_Ocean(x, y) {
+            let val = Math.sin(y * 0.15 + x * 0.15) * Math.cos(x * 0.15);
+            val += Math.sin(y * 0.4 - x) * Math.cos(x * 0.4) * 0.5;
+            val += Math.sin(Math.sqrt(y * y + x * x) * 0.2) * 0.3;
+            return val * 0.5;
+        }
+
+        const labels = [
+            { id: 'lbl-ocean', obj: oceanGroup, offset: { x: -150, y: 50 } }, { id: 'lbl-ground', obj: groundGroup, offset: { x: -120, y: -80 } },
+            { id: 'lbl-comp', obj: compGroup, offset: { x: -100, y: -100 } }, { id: 'lbl-atmo', obj: atmoGroup, offset: { x: -100, y: -120 } },
+            { id: 'lbl-geo', obj: geoGroup, offset: { x: 0, y: 120 } }, { id: 'lbl-nadir', obj: nadirGroup, offset: { x: 0, y: 80 } },
+            { id: 'lbl-roll', obj: rollGroup, offset: { x: 0, y: -100 } }, { id: 'lbl-karin', obj: karinGroup, offset: { x: 120, y: 80 } }
+        ];
+        setTimeout(() => { document.querySelectorAll('.label-minimal').forEach(el => el.classList.add('visible')); }, 500);
+
+        function updateUI() {
+            const svg = document.getElementById('svg-layer'); while (svg.firstChild) svg.removeChild(svg.firstChild);
+            labels.forEach(l => {
+                const el = document.getElementById(l.id); if (!el) return;
+                const v = l.obj.position.clone(); if (l.id === 'lbl-ocean') v.y += 5;
+                v.project(camera);
+                const cx = (v.x * .5 + .5) * window.innerWidth; const cy = (v.y * -.5 + .5) * window.innerHeight;
+                const lx = cx + l.offset.x; const ly = cy - l.offset.y;
+                el.style.left = `${lx}px`; el.style.top = `${ly}px`;
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'path'); line.setAttribute('d', `M ${cx} ${cy} L ${lx} ${ly + 20}`); line.setAttribute('class', 'connector-line'); svg.appendChild(line);
+                const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle'); dot.setAttribute('cx', cx); dot.setAttribute('cy', cy); dot.setAttribute('class', 'connector-dot'); svg.appendChild(dot);
+            });
+        }
+
+        let lastLightUpdate = 0;
+        function animate() {
+            requestAnimationFrame(animate);
+            const time = clock.getElapsedTime();
+            const speed = 3.0;
+            const effectiveTime = time * speed;
+
+            dishPivot.lookAt(satGroup.position);
+            dish.rotation.y = Math.sin(time * 0.8) * 0.3; dish.rotation.x = -Math.PI / 2 + Math.sin(time * 0.3) * 0.05;
+
+            if (time - lastLightUpdate > 0.2) {
+                lastLightUpdate = time;
+                serverLights.forEach((row, rIdx) => {
+                    const active = (Math.floor(time * 2) + rIdx) % 6 < 3;
+                    row.forEach((mat, cIdx) => { mat.color.setHex((active && Math.random() > 0.1) ? 0x00ff00 : 0x000000); });
+                });
+            }
+            if (screen.material.map) screen.material.map.offset.x = time * 0.5;
+
+            const pos = waterGeo.attributes.position;
+            for (let i = 0; i < pos.count; i++) {
+                const x = pos.getX(i); const y = pos.getY(i);
+                const sla = getSLA_Ocean(x, y + effectiveTime);
+                const roughness = Math.sin((y + effectiveTime) * 5) * Math.cos(x * 5) * 0.1;
+                pos.setZ(i, (sla * 3) + roughness);
+            }
+            waterGeo.attributes.position.needsUpdate = true;
+
+            const wfPos = wallFront.geometry.attributes.position;
+            for (let i = 0; i < wfPos.count; i++) {
+                const localY = wfPos.getY(i);
+                if (localY > 0) {
+                    const x = wfPos.getX(i); const sla = getSLA_Ocean(x, -11 + effectiveTime); const roughness = Math.sin((-11 + effectiveTime) * 5) * Math.cos(x * 5) * 0.1;
+                    wfPos.setY(i, 6.0 + (sla * 3) + roughness);
+                } else { wfPos.setY(i, -6.0); }
+            }
+            wallFront.geometry.attributes.position.needsUpdate = true;
+
+            const wbPos = wallBack.geometry.attributes.position;
+            for (let i = 0; i < wbPos.count; i++) {
+                const localY = wbPos.getY(i);
+                if (localY > 0) {
+                    const x = wbPos.getX(i); const worldX = -x; const sla = getSLA_Ocean(worldX, 11 + effectiveTime); const roughness = Math.sin((11 + effectiveTime) * 5) * Math.cos(worldX * 5) * 0.1;
+                    wbPos.setY(i, 6.0 + (sla * 3) + roughness);
+                } else { wbPos.setY(i, -6.0); }
+            }
+            wallBack.geometry.attributes.position.needsUpdate = true;
+
+            const wlPos = wallLeft.geometry.attributes.position;
+            for (let i = 0; i < wlPos.count; i++) {
+                const localY = wlPos.getY(i);
+                if (localY > 0) {
+                    const x = wlPos.getX(i); const planeY = -x; const sla = getSLA_Ocean(-11, planeY + effectiveTime); const roughness = Math.sin((planeY + effectiveTime) * 5) * Math.cos(-11 * 5) * 0.1;
+                    wlPos.setY(i, 6.0 + (sla * 3) + roughness);
+                } else { wlPos.setY(i, -6.0); }
+            }
+            wallLeft.geometry.attributes.position.needsUpdate = true;
+
+            const wrPos = wallRight.geometry.attributes.position;
+            for (let i = 0; i < wrPos.count; i++) {
+                const localY = wrPos.getY(i);
+                if (localY > 0) {
+                    const x = wrPos.getX(i); const planeY = x; const sla = getSLA_Ocean(11, planeY + effectiveTime); const roughness = Math.sin((planeY + effectiveTime) * 5) * Math.cos(11 * 5) * 0.1;
+                    wrPos.setY(i, 6.0 + (sla * 3) + roughness);
+                } else { wrPos.setY(i, -6.0); }
+            }
+            wallRight.geometry.attributes.position.needsUpdate = true;
+
+            const extPos = extWaterGeo.attributes.position;
+            for (let i = 0; i < extPos.count; i++) {
+                const x = extPos.getX(i); const y = extPos.getY(i); extPos.setZ(i, Math.sin(x * 1.5 + time * 2) * Math.cos(y * 1.5) * 0.5);
+            }
+            extWaterGeo.attributes.position.needsUpdate = true;
+
+            satGroup.position.y = 35 + Math.sin(time * 0.5) * 2;
+            extSatGroup.position.y = 25 + Math.sin(time * 0.4) * 1.5;
+
+            commBeam.lookAt(satGroup.position); commBeam.scale.z = commBeam.position.distanceTo(satGroup.position);
+            commBeam.material.opacity = 0.4 + Math.sin(time * 10) * 0.3; extCommBeam.material.opacity = 0.4 + Math.sin(time * 12) * 0.3;
+
+            vaporGroup.children.forEach((sprite, i) => { sprite.position.x += Math.sin(time * 0.5 + i) * 0.005; sprite.position.z += Math.cos(time * 0.5 + i) * 0.005; });
+
+            phaseMask.rotation.y = time * 0.5;
+
+            const tPos = tideGrid.geometry.attributes.position;
+            for (let i = 0; i < tPos.count; i++) { const x = tPos.getX(i); const y = tPos.getY(i); tPos.setZ(i, Math.sin(x * 0.5 + time) * Math.cos(y * 0.5) * 1.0); }
+            tideGrid.geometry.attributes.position.needsUpdate = true;
+
+            const wPos = windGrid.geometry.attributes.position;
+            for (let i = 0; i < wPos.count; i++) { const x = wPos.getX(i); const y = wPos.getY(i); wPos.setZ(i, Math.sin(x * 2 + time * 5) * Math.cos(y * 2) * 0.3); }
+            windGrid.geometry.attributes.position.needsUpdate = true;
+
+            const lPos = lineGeo.attributes.position; const lCol = lineGeo.attributes.color; const _col = new THREE.Color();
+            // Iteration 39: 1.5x Length (Width 90)
+            const axisWidth = 90;
+            for (let i = 0; i < lPos.count; i++) {
+                const x = (i / (lPos.count - 1)) * axisWidth - (axisWidth / 2);
+
+                // Sample 8 units of field over 90 units of screen (Extremely stretched)
+                const fieldY = (x / 90) * 8;
+
+                let val = getSLA_Field(0, fieldY + effectiveTime);
+                val += Math.sin(fieldY * 0.3 + effectiveTime) * 0.05;
+                val *= 0.8;
+
+                lPos.setXYZ(i, x, val * 1.5, 0);
+
+                // Iteration 39: Match KaRIn Palette (0.6 + val*0.2)
+                _col.setHSL(0.6 + val * 0.2, 1.0, 0.5); lCol.setXYZ(i, _col.r, _col.g, _col.b);
+            }
+            lineGeo.attributes.position.needsUpdate = true; lineGeo.attributes.color.needsUpdate = true;
+
+            const rPos = rollFieldGeo.attributes.position; const rCol = rollFieldGeo.attributes.color;
+            const rollTilt = Math.sin(time) * 0.2; rollField.rotation.x = -Math.PI / 2 + rollTilt;
+            for (let i = 0; i < rPos.count; i++) {
+                const x = rPos.getX(i); const y = rPos.getY(i); const error = x * rollTilt * 2.0;
+                const val = getSLA_Field(x, y + effectiveTime) + error;
+                rPos.setZ(i, val); _col.setHSL(0.6 - (error * 0.5), 1.0, 0.5); rCol.setXYZ(i, _col.r, _col.g, _col.b);
+            }
+            rollFieldGeo.attributes.position.needsUpdate = true; rollFieldGeo.attributes.color.needsUpdate = true;
+
+            const fastTime = effectiveTime * 1.6;
+            const fPosL = swathLGeo.attributes.position; const fColL = swathLGeo.attributes.color;
+            for (let i = 0; i < fPosL.count; i++) {
+                const x = fPosL.getX(i); const y = fPosL.getY(i);
+                const worldX = x - 5.0;
+                const val = getSLA_Field(worldX, y + fastTime);
+                fPosL.setZ(i, val * 2); _col.setHSL(0.6 + val * 0.2, 1.0, 0.5); fColL.setXYZ(i, _col.r, _col.g, _col.b);
+            }
+            swathLGeo.attributes.position.needsUpdate = true; swathLGeo.attributes.color.needsUpdate = true;
+
+            const fPosR = swathRGeo.attributes.position; const fColR = swathRGeo.attributes.color;
+            for (let i = 0; i < fPosR.count; i++) {
+                const x = fPosR.getX(i); const y = fPosR.getY(i);
+                const worldX = x + 5.0;
+                const val = getSLA_Field(worldX, y + fastTime);
+                fPosR.setZ(i, val * 2); _col.setHSL(0.6 + val * 0.2, 1.0, 0.5); fColR.setXYZ(i, _col.r, _col.g, _col.b);
+            }
+            swathRGeo.attributes.position.needsUpdate = true; swathRGeo.attributes.color.needsUpdate = true;
+
+            const fPosN = swathNGeo.attributes.position; const fColN = swathNGeo.attributes.color;
+            for (let i = 0; i < fPosN.count; i++) {
+                const x = fPosN.getX(i); const y = fPosN.getY(i); const worldX = x;
+                const val = getSLA_Field(worldX, y + fastTime);
+                fPosN.setZ(i, val * 2); _col.setHSL(0.6 + val * 0.2, 1.0, 0.5); fColN.setXYZ(i, _col.r, _col.g, _col.b);
+            }
+            swathNGeo.attributes.position.needsUpdate = true; swathNGeo.attributes.color.needsUpdate = true;
+
+            if (Math.random() > 0.9) { const pipeIdx = Math.floor(Math.random() * pipes.length); packets.push(spawnPacket(pipes[pipeIdx], 0x4CC9F0)); }
+            for (let i = packets.length - 1; i >= 0; i--) {
+                let p = packets[i]; p.t += p.speed * 0.01;
+                if (p.t >= 1) { scene.remove(p.mesh); packets.splice(i, 1); } else { p.mesh.position.copy(p.path.getPoint(p.t)); }
+            }
+
+            updateUI(); renderer.render(scene, camera);
+        }
+
+        animate();
+        window.addEventListener('resize', () => {
+            const aspect = window.innerWidth / window.innerHeight; camera.left = -d * aspect; camera.right = d * aspect;
+            camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); updateUI();
+        });
+    </script>
+</body>
+
+</html>
