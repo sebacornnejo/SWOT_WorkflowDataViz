@@ -6,7 +6,7 @@
 
 This project is a **scientific and pedagogical visualization** of the **SWOT (Surface Water and Ocean Topography)** satellite L3 data processing workflow. It illustrates the complex journey of altimetric data from the moment of interaction with the ocean surface to the generation of the final 2D product.
 
-Developed in collaboration between **Gemini 1.5 Pro** and **Anarcomedia (sebacornnejo)**, this tool aims to make the abstract concepts of satellite altimetry accessible and visually engaging.
+Developed in collaboration between **Gemini 3 Pro** and **Anarcomedia (sebacornnejo)**, this tool aims to make the abstract concepts of satellite altimetry accessible and visually engaging.
 
 ## Style & Inspiration
 
@@ -44,7 +44,7 @@ This is a standalone web visualization. No installation is required.
 
 Este proyecto es una **visualización científica y pedagógica** del flujo de trabajo de procesamiento de datos L3 del satélite **SWOT**. Ilustra el viaje de los datos altimétricos desde la interacción con el océano hasta el producto final 2D.
 
-**Créditos**: Realizado entre **Gemini 1.5 Pro** y **Anarcomedia (sebacornnejo)**.
+**Créditos**: Realizado entre **Gemini 3 Pro** y **Anarcomedia (sebacornnejo)**.
 
 ---
 
